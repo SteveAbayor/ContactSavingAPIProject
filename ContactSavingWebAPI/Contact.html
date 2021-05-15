@@ -1,0 +1,196 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <link href="Content/bootstrap.min.css" rel="stylesheet" />
+    <script src="Scripts/jquery-1.10.2.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var ulContact = $('#ulContact');
+
+            $('#btn').click(function () {
+                var FirstName = $('#txtFirstName').val();
+                var LastName = $('#txtLastName').val();
+                var PhoneNumber = $('#txtPhoneNumber').val();
+
+                $.ajax({
+                    type: 'GET',
+                    url: 'api/Contacts',
+                    dataType: 'json',
+                    success: function (data) {
+                        ulContact.empty();
+                        $.each(data, function (index, val) {
+                            //alert(JSON.stringify(val));
+                            //console.log(JSON.stringify(val));
+
+                            var fullName = val.FirstName + ' ' + val.LastName;
+                            var phoneNumber = ' (' + val.PhoneNumber + ')';
+                            var Edit = val.FirstName || val.LastName || val.PhoneNumber;
+                            ulContact.append('<li>' + fullName + phoneNumber + '</li>');
+
+                        });
+                    },
+                    complete: function (jqXHR) {
+                        if (jqXHR.status == '401') {
+                            ulContact.empty();
+                            ulContact.append('<li style="color:red">' + jqXHR.status + ' : ' + jqXHR.statusText + '</li>');
+                        }
+                    }
+                });
+            });
+
+            $('#btnClear').click(function () {
+                ulContact.empty();
+            });
+
+            $('#btnDelete').click(function () {
+                var FirstName = $('#txtFirstName').val();
+                var LastName = $('#txtLastName').val();
+                var PhoneNumber = $('#txtPhoneNumber').val();
+
+                $.ajax({
+                    URL: "/api/Contacts/",
+                    Type: "DELETE",
+                }).done(function () {
+                    if ((txtFirstName || txtLastName || txtPhoneNumber == null))
+                    {
+                        alert("Please provide a contact to be deleted");
+                    }
+                    else (txtFirstName || txtLastName || txtPhoneNumber != null)
+                    {
+                        confirm("Are you sure you want to delete this contact?")
+                        txtFirstName.empty();
+                        txtLastName.empty();
+                        txtPhoneNumber.empty()
+                        ulContact();
+                        alert("Contact Deleted")
+                    }
+                }).error(function () {
+                    alert("Failed to delete contact")
+                });
+                //if (!(txtFirstName || txtLastName || txtPhoneNumber != null))
+                //{
+                //    alert("Please provide a contact to be deleted");
+                //}
+                //if (confirm("Are you sure you want to delete this contact?")) {
+                //    var _contact = {};
+                //    _contact.FirstName = $("#txtFirstName").val();
+                //    _contact.LastName = $("#txtLastName").val();
+                //    _contact.PhoneNumber = $("txtPhoneNumber").val();
+
+                //    if (txtFirstName || txtLastName || txtPhoneNumber == true) {
+                //        $("#txtFirstName").autocomplete();
+                //        $("#txtLastName").autocoplete();
+                //        $("#txtPhoneNumber").autocoplete();
+                //}
+            });
+
+            function contactAdd(contact) {
+                $.ajax({
+                    url: '/api/Contacts/',
+                    type: 'POST',
+                    contentType: 'application/json;charset=utf-8',
+                    data: JSON.stringify(contact),
+                    success: function (contact) {
+                        contactAddSuccess(contact)
+                    },
+                    error: function (request, message, error) {
+                        handleException(request, message, error);
+                    }
+                });
+            }
+        });
+    </script>
+</head>
+<body style="padding-top:20px">
+    <div class="col-md-10 col-md-offset-1">
+        <div class="well">
+            <table class="table table-bordered">
+                <thead>
+                    <tr class="success">
+                        <td colspan="2">
+                            Search your contact lists by Details
+                            <a class="btn btn-success pull-right" href="RegisterContact.html">Register a new contact details</a>
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>First Name</td>
+                        <td>
+                            <input type="text" id="txtFirstName" placeholder="First Name" />
+                        </td>   
+                    </tr>
+                    <tr>
+                        <td>Last Name</td>
+                        <td>
+                            <input type="text" id="txtLastName" placeholder="Last Name" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Phone Number</td>
+                        <td>
+                            <input type="text" id="txtPhoneNumber" placeholder="Phone Number" />
+                        </td>
+                    </tr>
+                    <tr class="success">
+                        <td colspan="2">
+                            <input id="btn" class="btn btn-success" type="button" value="Get all saved contact details" />
+                        </td>
+                    </tr>
+                    <tr class="success">
+                        <td colspan="2">
+                            <input id="btnClear" class="btn btn-success" type="button" value="Clear" />
+                        </td>
+                    </tr>
+                    <tr class="success">
+                        <td colspan="2">
+                            <input id="btnDelete" class="btn btn-danger" type="button" data-model-id="@model.Id" value="Delete Contact" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul id="ulContact"></ul>
+            <div class="modal fade" tabindex="-1" id="successModal" data-keyboard="false" data-backdrop="static">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">
+                                &times;
+                            </button>
+                            <h4>Success</h4>
+                        </div>
+                        <div class="modal-body">
+                            <h2>Registration Successful</h2>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" data-dismiss="modal" class="btn btn-success">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="divError" class="alert alert-danger collapse">
+                <a id="linkClose" class="close" href="#">&times;</a>
+                <div id="divErrorText"></div>
+            </div>
+        </div>
+    </div>
+    <!--<div>
+        First Name : <input type="text" id="txtFirstName" />
+        <br /><br />
+        Last Name : <input type="text" id="txtLastName" />
+        <br /><br />
+        Phone Number : <input type="text" id="txtPhoneNumber" />
+        <br /><br />
+        <input id="btn" type="button" value="Get contact details" />
+        <input id="btnClear" type="button" value="Clear" />
+        <input id="btnDelete" type="button" value="Delete Contact" />
+        <br /><br />
+        <a class="btn btn-success" href="RegisterContact.html">Register a new contact details</a>
+        <ul id="ulContact"></ul>
+    </div>-->
+</body>
+</html>
